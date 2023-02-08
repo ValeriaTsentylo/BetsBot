@@ -20,16 +20,16 @@ def connection():
 
 
 def get_letter_text_from_html(body):
-    body = body.replace("<div><div>", "<div>").replace("</div></div>", "</div>")
+    body = body.replace("<p><p>", "<p>").replace("</p></p>", "</p>")
     try:
         soup = BeautifulSoup(body, "html.parser")
-        paragraphs = soup.find_all("div")
+        paragraphs = soup.find_all("p")
         text = ""
         for paragraph in paragraphs:
             text += paragraph.text + "\n"
         return text.replace("\xa0", " ")
     except Exception as exp:
-        print("text ftom html err ", exp)
+        print("text from html err", exp)
         return False
 
 
@@ -71,3 +71,40 @@ def get_letter_text(msg):
             count += 1
             return letter_text.replace("<", "").replace(">", "").replace("\xa0", " ")
 
+
+def get_link_from_html(body):
+    try:
+        soup = BeautifulSoup(body, 'html.parser')
+        links = soup.find_all('a')
+        text = ''
+        for link in links:
+            if link.get('href').find('topic') > -1:
+                text = link.get('href')
+        return text
+    except Exception as exp:
+        print("text from html err", exp)
+        return False
+
+
+def get_link(msg):
+    if msg.is_multipart():
+        for part in msg.walk():
+            count = 0
+            if part.get_content_maintype() == "text" and count == 0:
+                extract_part = letter_type(part)
+                if part.get_content_subtype() == "html":
+                    letter_link = get_link_from_html(extract_part)
+                else:
+                    letter_link = extract_part.rstrip().lstrip()
+                count += 1
+                return letter_link
+    else:
+        count = 0
+        if msg.get_content_maintype() == "text" and count == 0:
+            extract_part = letter_type(msg)
+            if msg.get_content_subtype() == "html":
+                letter_link = get_link_from_html(extract_part)
+            else:
+                letter_link = extract_part
+            count += 1
+            return letter_link
