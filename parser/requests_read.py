@@ -1,23 +1,25 @@
 import requests
-
-headers = {
-    'Cookie': 'SESSION=OTM1ZWMyOWUtZDM1Yi00MjRhLThkNDktZjUzMDMwZTNiMWJi; _ga=GA1.2.1918142767.1675961520; _gid=GA1.2.541953671.1675961520; _ym_uid=16759615201049564383; _ym_d=1675961520; _ym_isad=1; _gat=1'}
-
-# res = requests.get('https://expari.com/api/bet/leagues/1/1', headers=headers)
-# res = requests.get('https://expari.com/api/bet/events/1/35', headers=headers)
-
-# print(res.status_code)
-#
-# leages = res.json()
-# for leage in leages:
-#     print(type(leage), leage)
-
-data = {"id": None, "blog": {"id": 19994}, "title": "Western Sydney Wanderers - Sydney FC", "content": "", "price": 0,
+from parser.config import url_league, url_sport, url_event, url_bet, url_odds, url_odd, headers
+from dict import sport_id, league_id, event_id, odds_id
+from data import name_event, coefficient, MaxValue, displayName
+data = {"id": None, "blog": {"id": 19994}, "title": str(name_event), "content": "", "price": 0,
         "publish": True, "closeComment": False,
-        "bet": {"bookmakerId": 1, "sportId": 1, "leagueId": 35, "eventId": 5078742, "oddId": 60175093180, "value": 0,
-                "isHidden": False, "coefficient": 2.81, "analytic": False, "maxValue": 838.73,
-                "displayName": "(1x2) Хозяева", "selectedRecords": [], "wantStakeAmount": 0}, "mediaIds": [],
-        "confirmBet": False, "pinn": False, "hardOpen": False}
-res = requests.post('https://expari.com/api/topics', data=data, headers=headers)
-print(res.status_code)
-print(res.text)
+        "bet": {"bookmakerId": 1, "sportId": str(sport_id), "leagueId": str(league_id), "eventId": str(event_id),
+                "oddId": str(odds_id), "value": 0, "isHidden": False, "coefficient": str(coefficient),
+                "analytic": False, "maxValue": str(MaxValue), "displayName": str(displayName), "selectedRecords": [],
+                "wantStakeAmount": 0}, "mediaIds": [], "confirmBet": False, "pinn": False, "hardOpen": False}
+
+sport_choose = requests.get(url_sport + str(sport_id), headers=headers)
+league_choose = requests.get(url_league + str(sport_id) + str('/1'), headers=headers)
+event_choose = requests.get(url_event + str(sport_id) + '/' + str(league_id), headers=headers)
+odds_choose = requests.get(url_odds + str(event_id))
+odd_choose = requests.get(url_odd + str(odds_id))
+bet = requests.post(url_bet, data=data, headers=headers)
+
+print(sport_choose.status_code)
+print(league_choose.status_code)
+print(event_choose.status_code)
+print(odds_choose.status_code)
+print(odd_choose.status_code)
+print(bet.status_code)
+print(bet.text)
