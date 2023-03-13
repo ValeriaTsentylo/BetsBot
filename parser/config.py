@@ -1,11 +1,11 @@
 headers = {
-    'Cookie': '_ga=GA1.2.981950939.1675169280; _ym_uid=1675169280650801792; _ym_d=1675169280; SESSION=NzA2MDhkNWYtNGE0Ni00OWUwLTkzMTgtZTU1ZDY0ZGZlYWMz; _gid=GA1.2.1860254043.1678291679; _ym_isad=1; _gat=1'}
+    'Cookie': '_ga=GA1.2.981950939.1675169280; _ym_uid=1675169280650801792; _ym_d=1675169280; SESSION=NzA2MDhkNWYtNGE0Ni00OWUwLTkzMTgtZTU1ZDY0ZGZlYWMz; _gid=GA1.2.1835905019.1678725185; _ym_isad=1'}
 headers_for_post = {'Accept': 'application/json, text/plain, */*', 'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'uk-UA,uk;q=0.9,ru-UA;q=0.8,ru;q=0.7,en-US;q=0.6,en;q=0.5',
             'Connection': 'keep-alive',
-            'Content-Length': '425',
+            'Content-Length': '434',
             'Content-Type': 'application/json; charset=UTF-8',
-            'Cookie': '_ga=GA1.2.981950939.1675169280; _ym_uid=1675169280650801792; _ym_d=1675169280; SESSION=NzA2MDhkNWYtNGE0Ni00OWUwLTkzMTgtZTU1ZDY0ZGZlYWMz; _gid=GA1.2.1860254043.1678291679; _ym_isad=1; _gat=1',
+            'Cookie': '_ga=GA1.2.981950939.1675169280; _ym_uid=1675169280650801792; _ym_d=1675169280; SESSION=NzA2MDhkNWYtNGE0Ni00OWUwLTkzMTgtZTU1ZDY0ZGZlYWMz; _gid=GA1.2.1835905019.1678725185; _ym_isad=1',
             'Host': 'expari.com',
             'Origin': 'https://expari.com',
             'Referer': 'https://expari.com/topic/create',

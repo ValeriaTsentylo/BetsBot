@@ -36,15 +36,12 @@ def make_bet():
                         "selectedRecords": [], "wantStakeAmount": 0}, "mediaIds": [], "confirmBet": False,
                 "pinn": False, "hardOpen": False}
 
-        sport_choose = requests.get(f'{url_sport}{sport_id}', headers=headers)
-        league_choose = requests.get(f'{url_league}{sport_id}/1', headers=headers)
-        event_choose = requests.get(f'{url_event}{sport_id}/{league_id}', headers=headers)
-        odds_choose = requests.get(f'{url_odds}{event_id}', headers=headers)
-        odd_choose = requests.get(f'{url_odd }{odds_id}', headers=headers)
+        requests.get(f'{url_sport}{sport_id}', headers=headers)
+        requests.get(f'{url_league}{sport_id}/1', headers=headers)
+        requests.get(f'{url_event}{sport_id}/{league_id}', headers=headers)
+        requests.get(f'{url_odds}{event_id}', headers=headers)
+        requests.get(f'{url_odd }{odds_id}', headers=headers)
         bet = requests.post(url_bet, json=json, headers=headers_for_post)
-        print(bet.status_code)
-        print(bet.text)
-        print(bet.json())
         return bet.json()
 
 
