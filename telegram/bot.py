@@ -1,11 +1,12 @@
 import telebot
 from config import token
 from telebot import types
-from mails.helpers import connection
 import imaplib
+import pandas as pd
 
 
 def telegram_bot(token):
+
     bot = telebot.TeleBot(token)
 
     @bot.message_handler(commands=['start', '/return_to_main_menu'])
@@ -62,7 +63,18 @@ def telegram_bot(token):
                 bot.send_message(call.message.chat.id, 'Your data has been updated')
                 new_login = login
                 new_password = password
+                dict_data = {
+                    'USERNAME1': [new_login],
+                    'MAIL_PASS1': [new_password],
+                }
                 bot.send_message(call.message.chat.id, f'New login is: {new_login} and new password is: {new_password}')
+
+                def make_login_to_mail_csv():
+                    path = './login_to_mail.csv'
+                    data = pd.DataFrame(dict_data)
+                    data.to_csv(path, mode='a', header=False, index=False)
+                make_login_to_mail_csv()
+
             elif str == "Invalid login or password":
                 bot.send_message(call.message.chat.id, 'Email does not exist. Please, try again')
         elif call.data == "no":
