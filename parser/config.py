@@ -1,11 +1,23 @@
+import csv
+
+path = './infromation_for_header.csv'
+with open(path, 'r') as f:
+    reader = csv.reader(f)
+    rows = list(reader)
+    last_row = rows[-1]
+
+Cookie = str(last_row[0])
+Content_Length = str(last_row[1])
+X_CSRF_TOKEN = str(last_row[2])
+
 headers = {
-    'Cookie': '_ga=GA1.2.981950939.1675169280; _ym_uid=1675169280650801792; _ym_d=1675169280; SESSION=NzA2MDhkNWYtNGE0Ni00OWUwLTkzMTgtZTU1ZDY0ZGZlYWMz; _gid=GA1.2.1835905019.1678725185; _ym_isad=1'}
+    'Cookie': Cookie}
 headers_for_post = {'Accept': 'application/json, text/plain, */*', 'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'uk-UA,uk;q=0.9,ru-UA;q=0.8,ru;q=0.7,en-US;q=0.6,en;q=0.5',
             'Connection': 'keep-alive',
-            'Content-Length': '434',
+            'Content-Length': Content_Length,
             'Content-Type': 'application/json; charset=UTF-8',
-            'Cookie': '_ga=GA1.2.981950939.1675169280; _ym_uid=1675169280650801792; _ym_d=1675169280; SESSION=NzA2MDhkNWYtNGE0Ni00OWUwLTkzMTgtZTU1ZDY0ZGZlYWMz; _gid=GA1.2.1835905019.1678725185; _ym_isad=1',
+            'Cookie': Cookie,
             'Host': 'expari.com',
             'Origin': 'https://expari.com',
             'Referer': 'https://expari.com/topic/create',
@@ -15,7 +27,7 @@ headers_for_post = {'Accept': 'application/json, text/plain, */*', 'Accept-Encod
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
-            'X-CSRF-TOKEN': '30919ec5-4f42-49ed-9ded-a47f450aeb2a'}
+            'X-CSRF-TOKEN': X_CSRF_TOKEN}
 url_bet = 'https://expari.com/api/topics'
 url_sport = 'https://expari.com/api/bet/sports/'
 url_league = 'https://expari.com/api/bet/leagues/'

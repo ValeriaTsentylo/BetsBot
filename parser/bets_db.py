@@ -53,7 +53,3 @@ def make_bets_csv():
 
 
 make_bets_csv()
-
-
-
-
