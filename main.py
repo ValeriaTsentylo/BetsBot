@@ -1,22 +1,36 @@
 from time import sleep
 from datetime import datetime as dt
-
 from mails.get_new_emails import get_new_emails
+import telebot
+from telegram.config import token, user_id
 
+bot = telebot.TeleBot(token)
 
-def email_checker():
-    while True:
-        print(f'kindly checking new emails at {dt.today()}')
-        new_emails = get_new_emails()
-        if not list(new_emails):
-            print('no new emails :(')
-        for i, email_text in enumerate(new_emails):
-            print(i, ' ==> ', email_text)
-            # тут будет какой-то экшн
+while True:
+    bot.send_message(chat_id=user_id, text='The program has been started')
 
-        sleep(1*60)     # проверяем почту раз в минуту, может потом нужно будет увеличить
+    def email_checker():    # read new emails and add links to the global new_topics
+        bot.send_message(chat_id=user_id, text=f'kindly checking new emails at {dt.today()}')
+        global new_topics
+        new_topics = []
+        try:
+            new_topics.append(get_new_emails())
+        except Exception as exp:
+            bot.send_message(chat_id=user_id, text=f'{exp}')
+        return (new_topics)
 
+    if len(email_checker()) == 0:
+        bot.send_message(chat_id=user_id, text='There is not new emails')
+        sleep(360)
+    else:
+        def make_link():  #  найти ссылку в новой переменной, заюзать для ставки  и удалить ее из глобальной переменной
+            try:
+                for i in new_topics:
+                    link = i
+                    return link
+            except Exception as exp:
+                bot.send_message(chat_id=user_id, text=f'{exp}')
 
-if __name__ == '__main__':
-    email_checker()
+    bot.polling(none_stop=True, interval=0)
+
 

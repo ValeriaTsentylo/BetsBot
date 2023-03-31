@@ -1,7 +1,11 @@
 import requests
+import telebot
+from telegram.config import token, user_id
 from parser.config import url_league, url_sport, url_event, url_bet, url_odds, url_odd, headers, headers_for_post
 from dict import get_leagues, get_events, get_odds, get_league_id, get_event_id, get_odds_id
 from data_for_bet import find_sport_name, find_name_event, find_max_value, find_coefficient, find_display_name
+
+bot = telebot.TeleBot(token)
 
 
 def make_bet():
@@ -42,6 +46,8 @@ def make_bet():
         requests.get(f'{url_odds}{event_id}', headers=headers)
         requests.get(f'{url_odd }{odds_id}', headers=headers)
         bet = requests.post(url_bet, json=json, headers=headers_for_post)
+        bot.send_message(chat_id=user_id, text=f'{bet.status_code}')
+        bot.send_message(chat_id=user_id, text=f'{bet.text}')
         return bet.json()
 
 

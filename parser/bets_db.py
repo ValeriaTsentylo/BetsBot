@@ -1,8 +1,14 @@
 from data_for_bet import find_sport_name, find_name_event, find_name_league, find_country_league, find_user_name, find_coefficient, find_display_name, find_max_value, find_date_bet
 from data_for_db import find_display_name2, find_coefficient2, find_max_value2, link2, find_date_bet2, find_date_match, find_new_user_name
-from mails.get_new_emails import link
+# from mails.get_new_emails import link
 import pandas as pd
 import datetime as dt
+from main import make_link
+import telebot
+from telegram.config import token, user_id
+
+link = make_link()
+bot = telebot.TeleBot(token)
 
 
 def make_dict_bets():
@@ -49,7 +55,7 @@ def make_bets_csv():
     path = './bets_csv.csv'
     bets = pd.DataFrame(bets_db)
     bets.to_csv(path, mode='a', header=False, index=False)
-    print('Your csv file has been updated')
+    bot.send_message(chat_id=user_id, text='Your csv file has been updated')
 
 
 make_bets_csv()

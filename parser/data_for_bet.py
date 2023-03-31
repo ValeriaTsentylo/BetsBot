@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-from mails.get_new_emails import link
+# from mails.get_new_emails import link
+from main import make_link
+
+link = make_link()
 
 
 def find_sport_name():     # function returns sport from url

@@ -4,7 +4,7 @@ from config import url_league, url_event, url_odds
 from data_for_bet import find_name_league, find_country_league, find_name_event, find_display_name
 
 
-def get_leagues(sport_id: int):    # function returns dict for league_id searching
+def get_leagues(sport_id: int):  # function returns dict for league_id searching
     return requests.get(f'{url_league}{sport_id}/1/', headers=headers).json()
 
 
