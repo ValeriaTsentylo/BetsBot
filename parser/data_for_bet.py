@@ -1,12 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-# from mails.get_new_emails import link
-from main import make_link
-
-link = make_link()
 
 
-def find_sport_name():     # function returns sport from url
+def find_sport_name(link):     # function returns sport from url
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -16,7 +12,7 @@ def find_sport_name():     # function returns sport from url
         return False
 
 
-def find_country_league():  # function returns country for searching league_id
+def find_country_league(link):  # function returns country for searching league_id
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -26,7 +22,7 @@ def find_country_league():  # function returns country for searching league_id
         return False
 
 
-def find_name_league():  # function returns name dor searching league_id
+def find_name_league(link):  # function returns name dor searching league_id
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -37,7 +33,7 @@ def find_name_league():  # function returns name dor searching league_id
         return False
 
 
-def find_name_event():  # function return name_event for searching event_id
+def find_name_event(link):  # function return name_event for searching event_id
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -47,7 +43,7 @@ def find_name_event():  # function return name_event for searching event_id
         return False
 
 
-def find_display_name():    # function return displayName for searching odds_id
+def find_display_name(link):    # function return displayName for searching odds_id
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -57,7 +53,7 @@ def find_display_name():    # function return displayName for searching odds_id
         return False
 
 
-def find_coefficient():     # function return displayName for searching odds_id
+def find_coefficient(link):     # function return displayName for searching odds_id
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -67,7 +63,7 @@ def find_coefficient():     # function return displayName for searching odds_id
         return False
 
 
-def find_max_value():   # function return MaxValue for searching odds_id
+def find_max_value(link):   # function return MaxValue for searching odds_id
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -78,7 +74,7 @@ def find_max_value():   # function return MaxValue for searching odds_id
         return False
 
 
-def find_user_name():
+def find_user_name(link):
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -88,7 +84,7 @@ def find_user_name():
         return False
 
 
-def find_date_bet():
+def find_date_bet(link):
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')

@@ -1,32 +1,26 @@
-from data_for_bet import find_sport_name, find_name_event, find_name_league, find_country_league, find_user_name, find_coefficient, find_display_name, find_max_value, find_date_bet
-from data_for_db import find_display_name2, find_coefficient2, find_max_value2, link2, find_date_bet2, find_date_match, find_new_user_name
-# from mails.get_new_emails import link
+from parser.data_for_bet import find_sport_name, find_name_event, find_name_league, find_country_league, find_user_name, find_coefficient, find_display_name, find_max_value, find_date_bet
+from parser.data_for_db import find_display_name2, find_coefficient2, find_max_value2, find_date_bet2, find_date_match, find_new_user_name
 import pandas as pd
 import datetime as dt
-from main import make_link
-import telebot
-from telegram.config import token, user_id
-
-link = make_link()
-bot = telebot.TeleBot(token)
+from telegram.config import user_id
 
 
-def make_dict_bets():
-    user_name = find_user_name()
-    sport = find_sport_name()
-    match_name = find_name_event()
-    match_date = find_date_match()
-    league = find_name_league()
-    country = find_country_league()
-    date2 = find_date_bet2()
-    display_name2 = find_display_name2()
-    coefficient2 = find_coefficient2()
-    max_value2 = find_max_value2()
-    user_name_new = find_new_user_name()
-    date = find_date_bet()
-    display_name = find_display_name()
-    coefficient = find_coefficient()
-    max_value = find_max_value()
+def make_dict_bets(link, link2):
+    user_name = find_user_name(link)
+    sport = find_sport_name(link)
+    match_name = find_name_event(link)
+    match_date = find_date_match(link)
+    league = find_name_league(link)
+    country = find_country_league(link)
+    date2 = find_date_bet2(link)
+    display_name2 = find_display_name2(link2)
+    coefficient2 = find_coefficient2(link2)
+    max_value2 = find_max_value2(link2)
+    user_name_new = find_new_user_name(link)
+    date = find_date_bet(link)
+    display_name = find_display_name(link)
+    coefficient = find_coefficient(link)
+    max_value = find_max_value(link)
     bets_db_dict = {
         'date_id': [dt.datetime.now()],
         'Sport': [sport],
@@ -50,12 +44,12 @@ def make_dict_bets():
     return bets_db_dict
 
 
-def make_bets_csv():
-    bets_db = make_dict_bets()
+def make_bets_csv(link, link2, bot):
+    bets_db = make_dict_bets(link, link2)
     path = './bets_csv.csv'
     bets = pd.DataFrame(bets_db)
     bets.to_csv(path, mode='a', header=False, index=False)
     bot.send_message(chat_id=user_id, text='Your csv file has been updated')
 
 
-make_bets_csv()
+

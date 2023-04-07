@@ -10,6 +10,7 @@ def get_new_emails():
 
     status, messages = imap.select("INBOX")  # inbox folder
     res, unseen_msgs = imap.uid("search", "UNSEEN", "ALL")
+    letter_links = []
     for unseen_msg in unseen_msgs:
         unseen_msg = unseen_msg.decode(ENCODING).split(" ")
         if unseen_msg:
@@ -17,16 +18,14 @@ def get_new_emails():
                 res, msg = imap.uid("fetch", letter, "(RFC822)")
                 if res == "OK":
                     msg = email.message_from_bytes(msg[0][1])
-                    letter_links = get_link(msg)
-                    return letter_links
+                    letter_links.append(get_link(msg))
 
         else:
             continue
 
     imap.logout()
+    return letter_links
 
-
-link = get_new_emails()
 
 
 

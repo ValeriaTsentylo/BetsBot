@@ -1,15 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from requests_read import bet_dict
-from dict import topic_id
-from config import url_ex
 
 
-link2 = f'{url_ex}{topic_id(bet_dict)}'  # new link
-print(link2)
-
-
-def find_display_name2():    # function return displayName
+def find_display_name2(link2):    # function return displayName
     try:
         html_text = requests.get(link2).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -19,7 +12,7 @@ def find_display_name2():    # function return displayName
         return False
 
 
-def find_coefficient2():     # function returns coefficient
+def find_coefficient2(link2):     # function returns coefficient
     try:
         html_text = requests.get(link2).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -29,7 +22,7 @@ def find_coefficient2():     # function returns coefficient
         return False
 
 
-def find_max_value2():   # function return MaxValue
+def find_max_value2(link2):   # function return MaxValue
     try:
         html_text = requests.get(link2).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -40,7 +33,7 @@ def find_max_value2():   # function return MaxValue
         return False
 
 
-def find_date_bet2():
+def find_date_bet2(link2):
     try:
         html_text = requests.get(link2).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -51,7 +44,7 @@ def find_date_bet2():
         return False
 
 
-def find_date_match():
+def find_date_match(link2):
     try:
         html_text = requests.get(link2).text
         soup = BeautifulSoup(html_text, 'html.parser')
@@ -62,7 +55,7 @@ def find_date_match():
         return False
 
 
-def find_new_user_name():
+def find_new_user_name(link2):
     try:
         html_text = requests.get(link2).text
         soup = BeautifulSoup(html_text, 'html.parser')

@@ -1,7 +1,6 @@
 import requests
-from parser.config import headers
-from config import url_league, url_event, url_odds
-from data_for_bet import find_name_league, find_country_league, find_name_event, find_display_name
+from parser.config import headers, url_league, url_event, url_odds
+from parser.data_for_bet import find_name_league, find_country_league, find_name_event, find_display_name
 
 
 def get_leagues(sport_id: int):  # function returns dict for league_id searching

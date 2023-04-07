@@ -1,14 +1,11 @@
 import requests
-import telebot
-from telegram.config import token, user_id
+from telegram.config import user_id
 from parser.config import url_league, url_sport, url_event, url_bet, url_odds, url_odd, headers, headers_for_post
-from dict import get_leagues, get_events, get_odds, get_league_id, get_event_id, get_odds_id
-from data_for_bet import find_sport_name, find_name_event, find_max_value, find_coefficient, find_display_name
-
-bot = telebot.TeleBot(token)
+from parser.dict import get_leagues, get_events, get_odds, get_league_id, get_event_id, get_odds_id
+from parser.data_for_bet import find_sport_name, find_name_event, find_max_value, find_coefficient, find_display_name
 
 
-def make_bet():
+def make_bet(link, bot):
         sports = {  # dict with sport_id
                 "Football": 1,
                 "Tennis": 2,
@@ -18,18 +15,18 @@ def make_bet():
                 "American Football": 21,
                 "Hockey": 25,
                 }
-        name_sport = find_sport_name()
+        name_sport = find_sport_name(link)
         sport_id = sports.get(name_sport)  # get sport_id from sports
         leagues = get_leagues(sport_id)
         league_id = get_league_id(leagues)
-        name_event = find_name_event()
+        name_event = find_name_event(link)
         events = get_events(sport_id, league_id)
         event_id = get_event_id(events)
         odds = get_odds(event_id)
         odds_id = get_odds_id(odds)
-        display_name = find_display_name()
-        coefficient = find_coefficient()
-        max_value = find_max_value()
+        display_name = find_display_name(link)
+        coefficient = find_coefficient(link)
+        max_value = find_max_value(link)
 
         json = {"id": None, "blog": {"id": 19994}, "title": str(name_event), "content": "", "price": 0,
                 "publish": True, "closeComment": False,
@@ -51,7 +48,6 @@ def make_bet():
         return bet.json()
 
 
-bet_dict = make_bet()
 
 
 

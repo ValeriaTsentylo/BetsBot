@@ -1,36 +1,63 @@
 from time import sleep
 from datetime import datetime as dt
 from mails.get_new_emails import get_new_emails
-import telebot
-from telegram.config import token, user_id
+from parser.bets_db import make_bets_csv
+from parser.config import url_ex
+from parser.dict import topic_id
+from parser.requests_read import make_bet
+from telegram.test_bot import bot, dp
+from telegram.config import user_id
+from aiogram.utils import executor
+import asyncio
 
-bot = telebot.TeleBot(token)
+new_topics = []
 
-while True:
-    bot.send_message(chat_id=user_id, text='The program has been started')
 
-    def email_checker():    # read new emails and add links to the global new_topics
-        bot.send_message(chat_id=user_id, text=f'kindly checking new emails at {dt.today()}')
-        global new_topics
-        new_topics = []
-        try:
-            new_topics.append(get_new_emails())
-        except Exception as exp:
-            bot.send_message(chat_id=user_id, text=f'{exp}')
-        return (new_topics)
+async def email_checker():  # read new emails and add links to the global new_topics
+    await bot.send_message(chat_id=user_id, text=f'kindly checking new emails at {dt.today()}')
+    try:
+        new_topics.extend(get_new_emails())
+    except Exception as exp:
+        await bot.send_message(chat_id=user_id, text=f'{exp}')
+    return new_topics
 
-    if len(email_checker()) == 0:
-        bot.send_message(chat_id=user_id, text='There is not new emails')
-        sleep(360)
-    else:
-        def make_link():  #  найти ссылку в новой переменной, заюзать для ставки  и удалить ее из глобальной переменной
+
+async def timed_messages_worker(loop):
+    while True:
+        print('test')
+        await bot.send_message(chat_id=user_id, text='The program has been started')
+        unprocessed_topics = await email_checker()
+
+        if len(unprocessed_topics) == 0:
+            await bot.send_message(chat_id=user_id, text='There is not new emails')
+            sleep(360)
+            continue
+        for i, link in enumerate(unprocessed_topics.copy()):
             try:
-                for i in new_topics:
-                    link = i
-                    return link
+                bet_dict = make_bet(link, bot)
             except Exception as exp:
-                bot.send_message(chat_id=user_id, text=f'{exp}')
+                await bot.send_message(chat_id=user_id, text=f'{exp}')
+                break
+            link2 = f'{url_ex}{topic_id(bet_dict)}'
+            try:
+                make_bets_csv(link, link2, bot)
+            except Exception as exp:
+                await bot.send_message(chat_id=user_id, text=f'{exp}')
+            unprocessed_topics.pop(i)
+            await asyncio.sleep(1)
 
-    bot.polling(none_stop=True, interval=0)
+# if __name__ == '__main__':
+#     loop = asyncio.get_event_loop()
+#     loop.create_task(timed_messages_worker())
+#     executor.start_polling(dp)
+if __name__ == '__main__':
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        asyncio.run(timed_messages_worker(loop=loop))
+    except KeyboardInterrupt:
+        pass
+
+
 
 
