@@ -5,7 +5,7 @@ from parser.bets_db import make_bets_csv
 from parser.config import url_ex
 from parser.dict import topic_id
 from parser.requests_read import make_bet
-from telegram.test_bot import bot, dp
+from telegram.bot import bot, dp
 from telegram.config import user_id
 from aiogram.utils import executor
 import asyncio
