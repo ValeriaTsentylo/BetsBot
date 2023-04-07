@@ -55,6 +55,7 @@ if __name__ == '__main__':
     asyncio.set_event_loop(loop)
     try:
         asyncio.run(timed_messages_worker(loop=loop))
+        executor.start_polling(dp)
     except KeyboardInterrupt:
         pass
 
