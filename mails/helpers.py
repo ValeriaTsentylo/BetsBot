@@ -2,7 +2,6 @@ import base64
 import imaplib
 import quopri
 from bs4 import BeautifulSoup
-
 from mails.config import MAIL_PASS1, USERNAME1
 
 

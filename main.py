@@ -1,5 +1,3 @@
-from time import sleep
-from datetime import datetime as dt
 from mails.get_new_emails import get_new_emails
 from parser.bets_db import make_bets_csv
 from parser.config import url_ex
@@ -13,7 +11,6 @@ import asyncio
 
 async def email_checker():  # read new emails and add links to the global new_topics
     new_topics = []
-    await bot.send_message(chat_id=user_id, text=f'kindly checking new emails at {dt.today()}')
     try:
         new_topics.extend(get_new_emails())
     except Exception as exp:
@@ -22,25 +19,24 @@ async def email_checker():  # read new emails and add links to the global new_to
 
 
 async def timed_messages_worker():
+    await bot.send_message(chat_id=user_id, text='The program has been started')
     unprocessed_topics = []
     while True:
-        print('test')
-        await bot.send_message(chat_id=user_id, text='The program has been started')
         unprocessed_topics.extend(await email_checker())
-
         if len(unprocessed_topics) == 0:
             await bot.send_message(chat_id=user_id, text='There is not new emails')
             await asyncio.sleep(360)
             continue
         for i, link in enumerate(unprocessed_topics.copy()):
             try:
-                bet_dict = make_bet(link, bot)
+                bet_dict = await make_bet(link, bot)
             except Exception as exp:
+                print(exp)
                 await bot.send_message(chat_id=user_id, text=f'{exp}')
                 break
             link2 = f'{url_ex}{topic_id(bet_dict)}'
             try:
-                make_bets_csv(link, link2, bot)
+                await make_bets_csv(link, link2)
             except Exception as exp:
                 await bot.send_message(chat_id=user_id, text=f'{exp}')
             unprocessed_topics.pop(i)
@@ -53,7 +49,6 @@ if __name__ == '__main__':
     try:
         # asyncio.run(timed_messages_worker(loop=loop))
         task = loop.create_task(timed_messages_worker())
-        print('starting_polling')
         executor.start_polling(dp)
         loop.run_forever()
     except KeyboardInterrupt:
@@ -61,7 +56,3 @@ if __name__ == '__main__':
     finally:
         loop.stop()
         loop.close()
-
-
-
-

@@ -7,9 +7,9 @@ def get_leagues(sport_id: int):  # function returns dict for league_id searching
     return requests.get(f'{url_league}{sport_id}/1/', headers=headers).json()
 
 
-def get_league_id(leagues: list):    # function returns league_id
+def get_league_id(leagues: list, link):    # function returns league_id
     for row in leagues:
-        if row.get('country') == find_country_league() and row.get('name') == find_name_league():
+        if row.get('country') == find_country_league(link) and row.get('name') == find_name_league(link):
             return row.get('id')
 
 
@@ -17,8 +17,8 @@ def get_events(sport_id: int, league_id: int):     # function returns dict for e
     return requests.get(f'{url_event}{sport_id}/{league_id}', headers=headers).json()
 
 
-def get_event_id(events: list):    # function returns events_id
-    teams = str(find_name_event()).split(' - ')  # split 2 teams
+def get_event_id(events: list, link):    # function returns events_id
+    teams = str(find_name_event(link)).split(' - ')  # split 2 teams
     team1 = str(teams[0])
     team2 = str(teams[1])
     for row in events:
@@ -30,9 +30,9 @@ def get_odds(event_id: int):      # function returns dict for odd_id searching
     return requests.get(f'{url_odds}{event_id}', headers=headers).json()
 
 
-def get_odds_id(odds: list):  # function returns odds_id
+def get_odds_id(odds: list, link):  # function returns odds_id
     for row in odds:
-        if row.get('displayName') == find_display_name():
+        if row.get('displayName') == find_display_name(link):
             return row.get('id')
 
 

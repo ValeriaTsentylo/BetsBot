@@ -3,6 +3,7 @@ from parser.data_for_db import find_display_name2, find_coefficient2, find_max_v
 import pandas as pd
 import datetime as dt
 from telegram.config import user_id
+from parser.config import path_bets_csv
 
 
 def make_dict_bets(link, link2):
@@ -44,12 +45,11 @@ def make_dict_bets(link, link2):
     return bets_db_dict
 
 
-def make_bets_csv(link, link2, bot):
+async def make_bets_csv(link, link2):
     bets_db = make_dict_bets(link, link2)
-    path = './bets_csv.csv'
     bets = pd.DataFrame(bets_db)
-    bets.to_csv(path, mode='a', header=False, index=False)
-    bot.send_message(chat_id=user_id, text='Your csv file has been updated')
+    bets.to_csv(path_bets_csv, mode='a', header=False, index=False)
+
 
 
 

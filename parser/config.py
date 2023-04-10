@@ -1,7 +1,9 @@
 import csv
+from telegram.config import path_data_for_header
 
-path = './infromation_for_header.csv'
-with open(path, 'r') as f:  # looking for param for headers for requests
+path_bets_csv = './bets_csv.csv'
+
+with open(path_data_for_header, 'r') as f:  # looking for param for headers for requests
     reader = csv.reader(f)
     rows = list(reader)
     last_row = rows[-1]

@@ -57,7 +57,8 @@ def find_coefficient(link):     # function return displayName for searching odds
     try:
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, 'html.parser')
-        return soup.find('span', class_='bet-type-k').next_element
+        values = soup.find_all('span', class_=None)
+        return values[6].next_element
     except Exception as exp:
         print("text from html err", exp)
         return False

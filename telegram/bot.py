@@ -2,8 +2,9 @@ import imaplib
 import pandas as pd
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from telegram.config import token
-from aiogram.utils import executor
+from aiogram.types import ReplyKeyboardMarkup
+from telegram.config import token, path_user_id, path_excel, path_data_for_header, path_mail
+from parser.config import path_bets_csv
 from aiogram.dispatcher import FSMContext
 from telegram.states import DatePeriod, DataHeaders, LoginMail
 
@@ -16,18 +17,16 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(commands=['start'])    # starts bot, save user_id to cvs, displays buttons
 async def start(message):
     user_id = message.from_user.id
-    path = './user_id.csv'
     users_id = {
         'user_id': [user_id]
     }
     data = pd.DataFrame(users_id)
-    data.to_csv(path, mode='a', header=False, index=False)
-    markup = types.ReplyKeyboardMarkup()
+    data.to_csv(path_user_id, mode='a', header=False, index=False)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
     button1 = types.KeyboardButton('Change data for request')
     button2 = types.KeyboardButton('Change login to mail')
     button3 = types.KeyboardButton('Get bets DB')
     button4 = types.KeyboardButton('/help')
-
     markup.row(button1, button2)
     markup.row(button3, button4)
 
@@ -43,13 +42,13 @@ async def need_help(message):
 @dp.message_handler(content_types=['text'])
 async def login_to_mail(message):
     if message.text == 'Change login to mail':
-        await bot.send_message(message.chat.id, 'Please put your login to mail below:')
+        await bot.send_message(message.chat.id, 'Please put your login to mail below:', reply_markup=types.ReplyKeyboardRemove())
         await LoginMail.login.set()
     elif message.text == 'Change data for request':
-        await bot.send_message(message.chat.id, 'Please put your Cookies below:')
+        await bot.send_message(message.chat.id, 'Please put your Cookies below:', reply_markup=types.ReplyKeyboardRemove())
         await DataHeaders.cookies.set()
     elif message.text == 'Get bets DB':
-        await bot.send_message(message.chat.id, 'Please put start date below in format yyyy-mm-dd:')
+        await bot.send_message(message.chat.id, 'Please put start date below in format yyyy-mm-dd:', reply_markup=types.ReplyKeyboardRemove())
         await DatePeriod.start_date.set()
 
 
@@ -69,7 +68,8 @@ async def get_password(message: types.Message, state: FSMContext):
     keyboard.add(key_yes)
     key_no = types.InlineKeyboardButton(text='No', callback_data='question1_no')
     keyboard.add(key_no)
-    question = f'Your login is: {data["login"]} and your password is: {data["password"]}?'
+    question = f'Your login is: {data["login"]} and \n ' \
+               f'your password is: {data["password"]}?'
     await bot.send_message(message.from_user.id, text=question, reply_markup=keyboard)
     await LoginMail.next()
 
@@ -97,8 +97,9 @@ async def get_token_req(message: types.Message, state: FSMContext):
     keyboard.add(key_yes)
     key_no = types.InlineKeyboardButton(text='No', callback_data='question2_no')
     keyboard.add(key_no)
-    question = f'Your cookies is: {data["cookies"]}, \n your content_length is: {data["content_length"]}\n' \
-               f' your token is {data["token_req"]}?'
+    question = f'Your cookies is: {data["cookies"]}, \n ' \
+               f'your content_length is: {data["content_length"]}\n' \
+               f'your token is {data["token_req"]}?'
     await bot.send_message(message.from_user.id, text=question, reply_markup=keyboard)
     await DataHeaders.next()
 
@@ -134,23 +135,19 @@ async def callback_worker_1(call, state: FSMContext):
             new_cookies = data['cookies']
             new_content_length = data['content_length']
             new_token = data['token_req']
-            print(data['content_length'])
             dict_data = {
                 'Cookie': [new_cookies],
                 'Content-Length': [new_content_length],
                 'X-CSRF-TOKEN': [new_token],
             }
-            path = './infromation_for_header.csv'
             data = pd.DataFrame(dict_data)
-            data.to_csv(path, mode='a', header=False, index=False)
-            await state.finish()
+            data.to_csv(path_data_for_header, mode='a', header=False, index=False)
         else:
             await bot.send_message(call.message.chat.id, 'There is a mistake in your data. Please, try again!')
-            print(len(data['content_length']))
-            print(len(data['cookies']))
-            print(len(data['token_req']))
+            await bot.send_message(call.message.chat.id, 'To continue working with the bot press /start')
     elif call.data.endswith('no'):
-        await bot.send_message(call.message.chat.id, 'Choose your option:')
+        await bot.send_message(call.message.chat.id, 'To continue working with the bot press /start')
+    await state.reset_state()
 
 
 @dp.callback_query_handler(lambda call: call.data.startswith('question3'), state=DatePeriod.calltest)
@@ -158,16 +155,16 @@ async def callback_worker_1(call, state: FSMContext):
     data = await state.get_data()
     await call.answer()
     if call.data.endswith('yes'):
-        path = './bets_csv.csv'
-        df = pd.read_csv(path, sep=",")
-        file = df.query(f"'{data['start_date']}' <= date_id <= '{data['end_date']}'")
-        file.to_excel(r'./Bets_DB_Telegram.xlsx', header=True)
+        df = pd.read_csv(path_bets_csv, sep=",")
+        file = df.loc[(df['date_id'] >= data['start_date']) & (df['date_id'] <= data['end_date'] + ' 23:59:59')]
+        file.to_excel(path_excel, header=True)
         await bot.send_message(call.message.chat.id, 'Here if your file with data for the period')
-        f = open("./Bets_DB_Telegram.xlsx", "rb")
+        f = open(path_excel, "rb")
         await bot.send_document(call.message.chat.id, f)
-        await state.finish()
+        await bot.send_message(call.message.chat.id, 'To continue working with the bot press /start')
     elif call.data.endswith('no'):
-        await bot.send_message(call.message.chat.id, 'Choose your option:')
+        await bot.send_message(call.message.chat.id, 'To continue working with the bot press /start')
+    await state.reset_state()
 
 
 @dp.callback_query_handler(lambda call: call.data.startswith('question1'), state=LoginMail.calltest)
@@ -188,15 +185,13 @@ async def callback_worker_1(call, state: FSMContext):
                     'USERNAME1': [new_login],
                     'MAIL_PASS1': [new_password],
                 }
-                await bot.send_message(call.message.chat.id, f'New login is: {new_login} and new password is: {new_password}')
-                path = './login_to_mail.csv'
+                await bot.send_message(call.message.chat.id, f'New login is: {new_login} and \n'
+                                                             f'new password is: {new_password}')
                 data = pd.DataFrame(dict_data)
-                data.to_csv(path, mode='a', header=False, index=False)
-                await state.finish()
+                data.to_csv(path_mail, mode='a', header=False, index=False)
         except Exception as exp:
             await bot.send_message(call.message.chat.id, f'{exp}')
+            await bot.send_message(call.message.chat.id, 'To continue working with the bot press /start')
     elif call.data.endswith('no'):
-        await bot.send_message(call.message.chat.id, 'Choose your option:')
-
-
-# executor.start_polling(dp)
+        await bot.send_message(call.message.chat.id, 'To continue working with the bot press /start')
+    await state.reset_state()

@@ -1,6 +1,6 @@
 import email
 from mails.config import ENCODING
-from mails.helpers import get_letter_text, connection, get_link
+from mails.helpers import connection, get_link
 
 
 def get_new_emails():
@@ -25,8 +25,3 @@ def get_new_emails():
 
     imap.logout()
     return letter_links
-
-
-
-
-
