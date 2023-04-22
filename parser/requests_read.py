@@ -1,57 +1,144 @@
+import asyncio
+
+import aiohttp
 import requests
-from telegram.config import user_id
-from parser.config import url_league, url_sport, url_event, url_bet, url_odds, url_odd, headers, headers_for_post
-from parser.dict import get_leagues, get_events, get_odds, get_league_id, get_event_id, get_odds_id
-from parser.data_for_bet import find_sport_name, find_name_event, find_max_value, find_coefficient, find_display_name
+from aiogram import Bot
+
+from parser.config import url_bet, url_odd
+from parser.data_for_bet import find_sport_name, find_name_event, find_display_name
+from parser.dict import get_leagues, get_events, get_odds, get_league_id, get_event_id, get_odds_id, get_sports
+from program_state import GLOBAL_STATE
 
 
-async def make_bet(link, bot):
-        sports = {  # dict with sport_id
-                "Football": 1,
-                "Tennis": 2,
-                "Basketball": 3,
-                "Baseball": 4,
-                "E Sports": 18,
-                "American Football": 21,
-                "Hockey": 25,
-                }
-        name_sport = find_sport_name(link)
-        sport_id = sports.get(name_sport)  # get sport_id from sports
-        leagues = get_leagues(sport_id)
-        league_id = get_league_id(leagues, link)
-        name_event = find_name_event(link)
-        events = get_events(sport_id, league_id)
-        event_id = get_event_id(events, link)
-        odds = get_odds(event_id)
-        odds_id = get_odds_id(odds, link)
-        display_name = find_display_name(link)
-        coefficient = find_coefficient(link)
-        max_value = find_max_value(link)
+async def make_bet(link: str, html_text: str, bot: Bot):
+    # bookmakers = get_bookmakers()
+    sports = await get_sports()
+    print('sports done')
+    name_sport = find_sport_name(html_text)
+    if name_sport is None:
+        return {'topicAddon': {'topicId': 'Could not find sport name or bet is forbidden'}}
+    print('name_sport done')
+    sport_id = sports.get(name_sport)  # get sport_id from sports
+    print('sport_id done')
+    leagues = await get_leagues(sport_id)
+    print('leagues done')
+    league_id = get_league_id(leagues, html_text)
+    if league_id is None:
+        return {'topicAddon': {'topicId': 'Could not find league_id'}}
+    print('league_id done')
+    name_event = find_name_event(html_text)
+    print('name_event done')
+    events = await get_events(sport_id, league_id)
+    print('events done')
+    event_id = get_event_id(events, html_text)
+    if event_id is None:
+        return {'topicAddon': {'topicId': 'Event is outdated'}}
 
-        json = {"id": None, "blog": {"id": 19994}, "title": str(name_event), "content": "", "price": 0,
-                "publish": True, "closeComment": False,
-                "bet": {"bookmakerId": 1, "sportId": str(sport_id), "leagueId": str(league_id),
-                        "eventId": str(event_id), "oddId": str(odds_id), "value": 0, "isHidden": False,
-                        "coefficient": str(coefficient),
-                        "analytic": False,
-                        # "maxValue": str(max_value),
-                        "displayName": str(display_name),
-                        "selectedRecords": [], "wantStakeAmount": 0}, "mediaIds": [], "confirmBet": False,
-                "pinn": False, "hardOpen": False}
+    print('event_id done')
+    odds = await get_odds(event_id)
+    print('odds done')
+    odds_id = get_odds_id(odds, html_text)
+    print('odds_id done')
+    display_name = find_display_name(html_text)
+    print('display_name done')
 
-        requests.get(f'{url_sport}{sport_id}', headers=headers)
-        requests.get(f'{url_league}{sport_id}/1', headers=headers)
-        requests.get(f'{url_event}{sport_id}/{league_id}', headers=headers)
-        requests.get(f'{url_odds}{event_id}', headers=headers)
-        requests.get(f'{url_odd }{odds_id}', headers=headers)
-        bet = requests.post(url_bet, json=json, headers=headers_for_post)
-        if bet.status_code == 400:
-                await bot.send_message(chat_id=user_id, text=f'{bet.status_code}')
-                await bot.send_message(chat_id=user_id, text=f'{bet.text}')
-        return bet.json()
+    json = {
+        "id": None,
+        "blog": {"id": GLOBAL_STATE.BLOG_ID},
+        "title": str(name_event),
+        "content": "",
+        "price": 0,
+        "publish": True,
+        "closeComment": False,
+        "bet": {
+            "bookmakerId": GLOBAL_STATE.BOOKMAKER_ID,
+            "sportId": int(str(sport_id)) if sport_id else None,
+            "leagueId": int(str(league_id)) if league_id else None,
+            "eventId": int(str(event_id)) if event_id else None,
+            "oddId": int(str(odds_id)) if odds_id else None,
+            "value": 0,
+            "isHidden": False,
+            "analytic": False,
+            "displayName": str(display_name),
+            "selectedRecords": [],
+            "wantStakeAmount": GLOBAL_STATE.STAKE_AMOUNT,
+        },
+        "mediaIds": [],
+        "confirmBet": False,
+        "pinn": False,
+        "hardOpen": False
+    }
 
+    # odds_info = requests.get(f'{url_odd}{odds_id}', headers=GLOBAL_STATE.HEADERS)
+    # odds_info_json = odds_info.json()
+    async with aiohttp.ClientSession(headers=GLOBAL_STATE.HEADERS) as session:
+        async with session.get(f'{url_odd}{odds_id}') as odds_info:
+            odds_info_json = await odds_info.json()
 
+    if 'maxValue' in odds_info_json:
+        json['bet']['maxValue'] = odds_info_json['maxValue']
+    if 'coefficient' in odds_info_json:
+        json['bet']['coefficient'] = odds_info_json['coefficient']
+    print('odds_info done', odds_info_json)
+    print('next bet', json)
+    bet = requests.post(url_bet, json=json, headers=GLOBAL_STATE.HEADERS_FOR_POST)
+    print(bet.status_code)
+    bet_json = bet.json()
+    bet_status = bet.status_code
+    bet_text = bet.text
+    print('bet done', bet_status, bet_json)
+    # async with aiohttp.ClientSession(headers=GLOBAL_STATE.HEADERS_FOR_POST) as session:
+    #     async with session.post(url_bet, json=json) as bet:
+    #         print(bet.status)
+    #         bet_json = await bet.json()
+    #         bet_status = bet.status
+    #         bet_text = await bet.text()
+    #         print('bet done', bet_status, bet_json)
 
+    tries = 0
+    while bet_status == 500:
+        await asyncio.sleep(3)
+        bet = requests.post(url_bet, json=json, headers=GLOBAL_STATE.HEADERS_FOR_POST)
+        bet_json = bet.json()
+        bet_status = bet.status_code
+        bet_text = bet.text
+        print(f'bet try {tries}', bet_status, bet_json)
+        # async with aiohttp.ClientSession(headers=GLOBAL_STATE.HEADERS_FOR_POST) as session:
+        #     async with session.post(url_bet, json=json) as bet:
+        #         bet_json = await bet.json()
+        #         bet_status = bet.status
+        #         bet_text = await bet.text()
+        #         print(f'bet try {tries}', bet_status, bet_json)
+        tries += 1
+        if tries > 10:
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID,
+                text=f'Unprocessed link (with status code {bet_status}): {link}'
+            )
+            return {'topicAddon': {'topicId': 'Could not make a bet because of internal server error'}}
 
+    if bet_status == 400:
+        if bet_json['message'] == 'Ставка на этот матч уже размещена в выбраном блоге':
+            return {'topicAddon': {'topicId': 'Ставка на этот матч уже размещена в выбранном блоге'}}
+        elif bet_json['message'] == 'Проверьте введенные данные':
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID,
+                text=f'Unprocessed link (with status code {bet_status}): {link}'
+            )
+            return {'topicAddon': {'topicId': 'Подписка на блог не активна'}}
+        else:
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID,
+                text=f'Unprocessed link (<b>UNKNOWN ERROR</b>!) '
+                     f'(with status code {bet_status} '
+                     f'and msg "{bet_text}"): {link}',
+                parse_mode='HTML'
+            )
+            raise Exception(f'Error {bet_status}: {bet_text}')
 
+    if bet_status == 403:
+        GLOBAL_STATE.HEADERS_ARE_BROKEN = True
+        await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'Authorization expired. Please, relogin.')
+        raise Exception(f'Error {bet_status}: {bet_text}')
 
+    return bet_json

@@ -1,17 +1,18 @@
 import base64
 import imaplib
 import quopri
+import traceback
+
 from bs4 import BeautifulSoup
-from mails.config import MAIL_PASS1, USERNAME1
+
+from program_state import GLOBAL_STATE
 
 
 def connection():
-    mail_pass = MAIL_PASS1
-    username = USERNAME1
     imap_server = "imap.example.com"
     port = 993
     imap = imaplib.IMAP4_SSL(imap_server, port)
-    sts, res = imap.login(username, mail_pass)
+    sts, res = imap.login(GLOBAL_STATE.MAIL_USERNAME, GLOBAL_STATE.MAIL_PASS)
     if sts == "OK":
         return imap
     else:
@@ -29,6 +30,7 @@ def get_letter_text_from_html(body):
         return text.replace("\xa0", " ")
     except Exception as exp:
         print("text from html err", exp)
+        traceback.print_exc()
         return False
 
 
@@ -82,7 +84,8 @@ def get_link_from_html(body):
         return text
     except Exception as exp:
         print("text from html err", exp)
-        return False
+        traceback.print_exc()
+        return None
 
 
 def get_link(msg):
@@ -92,7 +95,7 @@ def get_link(msg):
             if part.get_content_maintype() == "text" and count == 0:
                 extract_part = letter_type(part)
                 if part.get_content_subtype() == "html":
-                    letter_link = get_link_from_html(extract_part)
+                    letter_link: str = get_link_from_html(extract_part) or ''
                 else:
                     letter_link = extract_part.rstrip().lstrip()
                 count += 1

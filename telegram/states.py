@@ -18,3 +18,11 @@ class DatePeriod(StatesGroup):
     start_date = State()
     end_date = State()
     calltest = State()  # this state is for callback_query_handler
+
+
+class AccountSetup(StatesGroup):
+    blog_id = State()
+    stake_amount = State()
+    waiting_time = State()
+    calltest = State()  # this state is for callback_query_handler
+

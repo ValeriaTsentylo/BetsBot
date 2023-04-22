@@ -1,16 +1,19 @@
 import email
+from typing import List
+
 from mails.config import ENCODING
 from mails.helpers import connection, get_link
 
 
-def get_new_emails():
+def get_new_emails() -> List[str]:
     imap = connection()
     if not imap:
-        return None
+        return []
 
     status, messages = imap.select("INBOX")  # inbox folder
     res, unseen_msgs = imap.uid("search", "UNSEEN", "ALL")
     letter_links = []
+    unseen_msgs = [msg for msg in unseen_msgs if msg]
     for unseen_msg in unseen_msgs:
         unseen_msg = unseen_msg.decode(ENCODING).split(" ")
         if unseen_msg:
