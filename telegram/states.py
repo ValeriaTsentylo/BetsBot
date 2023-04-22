@@ -15,8 +15,7 @@ class LoginMail(StatesGroup):
 
 
 class DatePeriod(StatesGroup):
-    start_date = State()
-    end_date = State()
+    date_period = State()
     calltest = State()  # this state is for callback_query_handler
 
 

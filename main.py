@@ -12,7 +12,7 @@ from parser.data_for_db import find_result
 from parser.dict import topic_id
 from parser.requests_read import make_bet
 from program_state import GLOBAL_STATE
-from telegram.bot import bot, dp
+from telegram.bot import bot, dp, BASIC_MARKUP
 from aiogram.utils import executor
 import asyncio
 
@@ -35,7 +35,7 @@ async def results_updater():
                     all_data.loc[all_data['Link'] == link, 'Result'] = result
             except Exception as exp:
                 traceback.print_exc()
-                await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'main:36 {exp}')
+                await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'Помилка в main:38 {exp}')
 
     print('saving update results')
     all_data.to_csv(path_bets_csv, index=False, sep=',', mode='w', header=True)
@@ -48,7 +48,7 @@ async def email_checker() -> List[str]:  # read new emails and add links to the 
         new_topics.extend(get_new_emails())
     except Exception as exp:
         traceback.print_exc()
-        await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'main:16 {exp}')
+        await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'Помилка в main:51 {exp}')
     return new_topics
 
 
@@ -59,33 +59,45 @@ async def timed_messages_worker():
     while GLOBAL_STATE.USER_TELEGRAM_ID is None:
         await asyncio.sleep(1)
 
-    await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='The program has been started')
+    await bot.send_message(
+        chat_id=GLOBAL_STATE.USER_TELEGRAM_ID,
+        text='The program has been started 😍',
+        reply_markup=BASIC_MARKUP
+    )
     unprocessed_topics: List[str] = []
     while True:
         # ----------------- check if headers are working -----------------
         if GLOBAL_STATE.HEADERS_ARE_BROKEN:
-            await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Headers are broken!')
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Headers перестали працювати!', reply_markup=BASIC_MARKUP
+            )
             while GLOBAL_STATE.HEADERS_ARE_BROKEN:
                 await asyncio.sleep(1)
             continue
 
         # ----------------- check if email data is set -----------------
         if not GLOBAL_STATE.EMAIL_DATA_IS_SET:
-            await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Email data is not set!')
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Дані Email-у не задані!', reply_markup=BASIC_MARKUP
+            )
             while not GLOBAL_STATE.EMAIL_DATA_IS_SET:
                 await asyncio.sleep(1)
             continue
 
         # ----------------- check if blog id is set -----------------
         if GLOBAL_STATE.BLOG_ID is None:
-            await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Blog id is not set!')
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Blog id не задано!', reply_markup=BASIC_MARKUP
+            )
             while GLOBAL_STATE.BLOG_ID is None:
                 await asyncio.sleep(1)
             continue
 
         # ----------------- check if program is on pause -----------------
         if GLOBAL_STATE.PAUSE:
-            await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='The program is paused')
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='Програма призупинена!', reply_markup=BASIC_MARKUP
+            )
             while GLOBAL_STATE.PAUSE:
                 await asyncio.sleep(1)
             continue
@@ -102,11 +114,12 @@ async def timed_messages_worker():
             ])
         except Exception as exp:
             traceback.print_exc()
-            await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'main:27 {exp}')
+            await bot.send_message(
+                chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'main:27 {exp}', reply_markup=BASIC_MARKUP
+            )
             continue
 
         if len(unprocessed_topics) == 0:
-            # await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text='There are no new emails')
             await asyncio.sleep(GLOBAL_STATE.WAITING_TIME)
             continue
 
@@ -121,7 +134,6 @@ async def timed_messages_worker():
                 bet_dict = await make_bet(link, html_text, bot)
             except Exception as exp:
                 traceback.print_exc()
-                # await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'main:33 {exp}')
                 unprocessed_topics.pop(unprocessed_topics.index(link))
                 unprocessed_topics.append(link)
                 print(f'link {i} was not processed: {link}; {len(unprocessed_topics)} unprocessed topics left')
@@ -148,7 +160,6 @@ async def timed_messages_worker():
                 print('make_bets_csv ends')
             except Exception as exp:
                 traceback.print_exc()
-                # await bot.send_message(chat_id=GLOBAL_STATE.USER_TELEGRAM_ID, text=f'main:40 {exp}')
                 unprocessed_topics.pop(unprocessed_topics.index(link))
                 unprocessed_topics.append(link)
                 print(f'link {i} was not processed: {link}; {len(unprocessed_topics)} unprocessed topics left')
