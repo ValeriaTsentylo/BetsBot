@@ -4,7 +4,7 @@ import aiohttp
 import requests
 from aiogram import Bot
 
-from parser.config import url_bet, url_odd
+from parser.config import API_ERROR_BET_ALREADY_PLACED, API_ERROR_CHECK_INPUT_DATA, url_bet, url_odd
 from parser.data_for_bet import find_sport_name, find_name_event, find_display_name
 from parser.dict import get_leagues, get_events, get_odds, get_league_id, get_event_id, get_odds_id, get_sports
 from program_state import GLOBAL_STATE
@@ -118,14 +118,14 @@ async def make_bet(link: str, html_text: str, bot: Bot):
             return {'topicAddon': {'topicId': 'Could not make a bet because of internal server error'}}
 
     if bet_status == 400:
-        if bet_json['message'] == 'Ставка на этот матч уже размещена в выбраном блоге':
-            return {'topicAddon': {'topicId': 'Ставка на этот матч уже размещена в выбранном блоге'}}
-        elif bet_json['message'] == 'Проверьте введенные данные':
+        if bet_json['message'] == API_ERROR_BET_ALREADY_PLACED:
+            return {'topicAddon': {'topicId': 'Bet on this event has already been placed in the selected blog'}}
+        elif bet_json['message'] == API_ERROR_CHECK_INPUT_DATA:
             await bot.send_message(
                 chat_id=GLOBAL_STATE.USER_TELEGRAM_ID,
                 text=f'Unprocessed link (with status code {bet_status}): {link}'
             )
-            return {'topicAddon': {'topicId': 'Подписка на блог не активна'}}
+            return {'topicAddon': {'topicId': 'Blog subscription is not active'}}
         else:
             await bot.send_message(
                 chat_id=GLOBAL_STATE.USER_TELEGRAM_ID,

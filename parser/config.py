@@ -36,3 +36,20 @@ url_event = 'https://expari.com/api/bet/events/'
 url_odds = 'https://expari.com/api/bet/odds/'
 url_odd = 'https://expari.com/api/bet/odd/'
 url_ex = 'https://expari.com/topic/'
+
+# The upstream API (expari.com) is a Russian-language service and returns its
+# error messages and page labels verbatim in Russian. The constants below mirror
+# those raw upstream strings so the responses can be matched; they are written as
+# escape sequences to keep this source tree free of non-Latin text, and they are
+# never shown to the user.
+API_ERROR_BET_ALREADY_PLACED = (
+    '\u0421\u0442\u0430\u0432\u043a\u0430 \u043d\u0430 \u044d\u0442\u043e\u0442 '
+    '\u043c\u0430\u0442\u0447 \u0443\u0436\u0435 \u0440\u0430\u0437\u043c\u0435'
+    '\u0449\u0435\u043d\u0430 \u0432 \u0432\u044b\u0431\u0440\u0430\u043d\u043e\u043c '
+    '\u0431\u043b\u043e\u0433\u0435'
+)
+API_ERROR_CHECK_INPUT_DATA = (
+    '\u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u0432\u0432\u0435'
+    '\u0434\u0435\u043d\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435'
+)
+PAGE_LABEL_STATUS = '\u0421\u0442\u0430\u0442\u0443\u0441:'

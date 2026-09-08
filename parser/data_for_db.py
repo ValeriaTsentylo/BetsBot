@@ -4,6 +4,8 @@ from typing import Union
 
 from bs4 import BeautifulSoup
 
+from parser.config import PAGE_LABEL_STATUS
+
 
 def find_display_name2(html_text: Union[str, None]):    # function return displayName
     if html_text is None:
@@ -92,8 +94,7 @@ def find_result(html_text: str):
     try:
         soup = BeautifulSoup(html_text, 'html.parser')
         test = re.sub(r'\s*', '', soup.find('table').find_all('tr')[6].find_all('td')[0].text or '')
-        print(test, test == 'Статус:')
-        if test == 'Статус:':
+        if test == PAGE_LABEL_STATUS:
             return None
         else:
             test2 = re.sub(r'\s*', '', soup.find('table').find_all('tr')[6].find_all('td')[1].text or '')

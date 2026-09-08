@@ -1,0 +1,18 @@
+# Secrets and runtime data — never commit these
+.env
+login_to_mail.csv
+infromation_for_header.csv
+user_id.csv
+*.xlsx
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env.local
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

@@ -5,13 +5,12 @@ import traceback
 
 from bs4 import BeautifulSoup
 
+from mails.config import IMAP_PORT, IMAP_SERVER
 from program_state import GLOBAL_STATE
 
 
 def connection():
-    imap_server = "imap.example.com"
-    port = 993
-    imap = imaplib.IMAP4_SSL(imap_server, port)
+    imap = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
     sts, res = imap.login(GLOBAL_STATE.MAIL_USERNAME, GLOBAL_STATE.MAIL_PASS)
     if sts == "OK":
         return imap

@@ -1,4 +1,10 @@
-token = '***REMOVED***'
+import os
+
+token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+if not token:
+    raise RuntimeError(
+        "TELEGRAM_BOT_TOKEN is not set. Copy .env.example to .env and fill it in."
+    )
 path_user_id = './user_id.csv'
 path_excel = './Bets_DB_Telegram.xlsx'
 path_data_for_header = './infromation_for_header.csv'
